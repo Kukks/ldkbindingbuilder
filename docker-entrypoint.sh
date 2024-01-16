@@ -18,17 +18,18 @@ cd ../
 ls
 rm c_sharp/src/org/ldk/enums/*.cs c_sharp/src/org/ldk/impl/*.cs c_sharp/src/org/ldk/structs/*.cs
 
-export LDK_GARBAGECOLLECTED_GIT_OVERRIDE="$(git describe --tag HEAD)"
-LDK_TARGET=x86_64-pc-windows-gnu ./genbindings.sh ./ldk-c-bindings/ c_sharp true false
-		  
-ls
-export LDK_GARBAGECOLLECTED_GIT_OVERRIDE="$(git describe --tag HEAD)"
 sed -i 's$mono-csc -g -out:csharpldk.dll -langversion:3 -t:library -unsafe c_sharp/src/org/ldk/enums/\*.cs c_sharp/src/org/ldk/impl/\*.cs c_sharp/src/org/ldk/util/\*.cs c_sharp/src/org/ldk/structs/\*.cs$cd c_sharp;dotnet build --configuration Debug --output packaging_artifacts/lib/net6.0; cd ..$' ./genbindings.sh
 
-./genbindings.sh ./ldk-c-bindings/ c_sharp true false 
+export LDK_GARBAGECOLLECTED_GIT_OVERRIDE="$(git describe --tag HEAD)"
+LDK_TARGET=x86_64-pc-windows-gnu ./genbindings.sh ./ldk-c-bindings/ c_sharp false false
+
+./genbindings.sh ./ldk-c-bindings/ c_sharp true false
+mkdir -p c_sharp/packaging_artifacts/runtimes/linux-x64/native
+cp libldkcsharp_debug_Linux-amd64.so c_sharp/packaging_artifacts/runtimes/linux-x64/native/libldkcsharp.so
 
 cd c_sharp
 ./build-release-nupkg.sh
+ls -lha org.ldk.nupkg # Output is here
 cd ../  
 ls c_sharp/packaging_artifacts
 cp c_sharp/org.ldk.nupkg /app/local_output/org.ldk.nupkg 
